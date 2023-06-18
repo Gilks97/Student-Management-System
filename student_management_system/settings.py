@@ -133,6 +133,9 @@ USE_TZ = True
 STATIC_URL = 'static/'
 AUTH_USER_MODEL="student_management_app.CustomUser"
 
+# Registering Custom Backend "EmailBackEnd"
+AUTHENTICATION_BACKENDS = ['student_management_app.EmailBackEnd.EmailBackEnd']
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
