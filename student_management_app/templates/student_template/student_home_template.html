@@ -1,0 +1,79 @@
+{% extends 'student_template/base_template.html' %}
+
+{% block page_title %}
+    Student Home
+{% endblock page_title %}
+
+{% block main_content %}
+
+{% load static %}
+
+<section class="content">
+        <div class="container-fluid">
+
+            {% comment %} Boxes Section Starts {% endcomment %}
+            <div class="row">
+                <div class="col-lg-4 col-6">
+                    <!-- small box -->
+                    <div class="small-box bg-info">
+                    <div class="inner">
+                        <h3>{{ student_details }}</h3>
+
+                        <p>Profile</p>
+                    </div>
+                    <div class="icon">
+                        <i class="ion ion-stats-bars"></i>
+                    </div>
+                    <a href="{% url 'student_details' %}" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                    </div>
+                </div>
+                <!-- ./col -->
+                <div class="col-lg-4 col-6">
+                    <!-- small box -->
+                    <div class="small-box bg-success">
+                    <div class="inner">
+                        <h3>{{ attendance_absent }}</h3>
+
+                        <p>Apply for leave</p>
+                    </div>
+                    <div class="icon">
+                        <i class="ion ion-stats-bars"></i>
+                    </div>
+                    <a href="{% url 'student_apply_leave' %}" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                    </div>
+                </div>
+                <!-- ./col -->
+                <div class="col-lg-4 col-6">
+                    <!-- small box -->
+                    <div class="small-box bg-warning">
+                    <div class="inner">
+                        <h3>{{ attendance_present }}</h3>
+
+                        <p>Student Feedback</p>
+                    </div>
+                    <div class="icon">
+                        <i class="ion ion-stats-bars"></i>
+                    </div>
+                    <a href="{% url 'student_feedback' %}" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                    </div>
+                </div>
+                <!-- ./col -->
+                
+            {% comment %} Boxes Section Ends {% endcomment %}
+
+
+                    <div class="card-body">
+                        <div class="chart">
+                        <canvas id="barChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                        </div>
+                    </div>
+                    <!-- /.card-body -->
+                    </div>
+                    <!-- /.card -->
+                </div>
+            </div>
+
+        </div><!-- /.container-fluid -->
+      </section>
+
+  {% endblock main_content %}

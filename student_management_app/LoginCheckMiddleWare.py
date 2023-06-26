@@ -1,14 +1,3 @@
-
-*have excluded evrything to do with staff i.e subjetcs& staffs models
-#####
-errors to be solved
--edit student
--delete student, del function
--run migrations
--deal with my details at student_details
-
-###from LoginCheckMiddleWare
-
 from django.http import HttpResponseRedirect
 from django.utils.deprecation import MiddlewareMixin
 from django.shortcuts import render, redirect
