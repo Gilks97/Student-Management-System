@@ -1,8 +1,12 @@
 import datetime
 from django.shortcuts import render, redirect
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.contrib import messages
 from django.core.files.storage import FileSystemStorage #To upload Profile Picture
+from django.urls import reverse
+from django.views.decorators.csrf import csrf_exempt
+from django.core import serializers
+import json
 
 
 from student_management_app.models import CustomUser, staffs, Courses, Subjects, Students, FeedBackStudent, FeedBackStaffs, LeaveReportStudent, LeaveReportStaff, Attendance, AttendanceReport
@@ -25,17 +29,74 @@ def add_course(request):
 def add_course_save(request):
     if request.method != "POST":
         messages.error(request, "Invalid Method!")
-        return redirect('/add_course')
+        return redirect('add_course')
     else:
         course = request.POST.get('course')
         try:
             course_model = Courses(course_name=course)
             course_model.save()
-            messages.success(request,"Course Added Successfully!")
+            messages.success(request, "Course Added Successfully!")
             return redirect('/add_course')
         except:
             messages.error(request, "Failed to Add Course!")
             return redirect('/add_course')
+    
+def manage_course(request):
+    courses=Courses.objects.all()
+    return render(request, "hod_template/manage_course_template.html", {"courses": courses})
+        
+def manage_course(request):
+    courses = Courses.objects.all()
+    context = {
+        "courses": courses
+    }
+    return render(request, 'hod_template/manage_course_template.html', context)
+
+def edit_course(request, course_id):
+    course = Courses.objects.get(id=course_id)
+    context = {
+        "course": course,
+        "id": course_id
+    }
+    return render(request, 'hod_template/edit_course_template.html', context)
+
+
+def edit_course_save(request):
+    if request.method != "POST":
+        HttpResponse("Invalid Method")
+    else:
+        course_id = request.POST.get('course_id')
+        course_name = request.POST.get('course')
+
+        try:
+            course = Courses.objects.get(id=course_id)
+            course.course_name = course_name
+            course.save()
+
+            messages.success(request, "Course Updated Successfully.")
+            return redirect('/edit_course/'+course_id)
+
+        except:
+            messages.error(request, "Failed to Update Course.")
+            return redirect('/edit_course/'+course_id)
+
+
+def delete_course(request, course_id):
+    course = Courses.objects.get(id=course_id)
+    try:
+        course.delete()
+        messages.success(request, "Course Deleted Successfully.")
+        return redirect('manage_course')
+    except:
+        messages.error(request, "Failed to Delete Course.")
+        return redirect('manage_course')
+        
+
+
+
+def manage_student(request):
+    students=Students.objects.all()
+    return render(request, "hod_template/manage_student_template.html", {"students": students})
 
 def add_student(request):
     courses=Courses.objects.all()
@@ -153,59 +214,110 @@ def delete_student(request):
     pass
 
 
-            
+def student_feedback_message(request):
+    feedbacks = FeedBackStudent.objects.all()
+    context = {
+        "feedbacks": feedbacks
+    }
+    return render(request, 'hod_template/student_feedback_template.html', context)
 
-def manage_course(request):
+def add_subject(request):
     courses = Courses.objects.all()
     context = {
-        "courses": courses
+        "courses": courses,
     }
-    return render(request, 'hod_template/manage_course_template.html', context)
-
-def edit_course(request, course_id):
-    course = Courses.objects.get(id=course_id)
-    context = {
-        "course": course,
-        "id": course_id
-    }
-    return render(request, 'hod_template/edit_course_template.html', context)
+    return render(request, 'hod_template/add_subject_template.html', context)
 
 
-def edit_course_save(request):
+
+def add_subject_save(request):
     if request.method != "POST":
-        HttpResponse("Invalid Method")
+        messages.error(request, "Method Not Allowed!")
+        return redirect('/add_subject')
     else:
-        course_id = request.POST.get('course_id')
-        course_name = request.POST.get('course')
+        subject_name = request.POST.get('subject')
+
+        course_id = request.POST.get('course')
+        course = Courses.objects.get(id=course_id)
 
         try:
-            course = Courses.objects.get(id=course_id)
-            course.course_name = course_name
-            course.save()
+            subject = Subjects(subject_name=subject_name, course_id=course)
+            subject.save()
+            messages.success(request, "Subject Added Successfully!")
+            return redirect('/add_subject')
+        except:
+            messages.error(request, "Failed to Add Subject!")
+            return redirect('/add_subject')
 
-            messages.success(request, "Course Updated Successfully.")
-            return redirect('/edit_course/'+course_id)
+
+def manage_subject(request):
+    subjects = Subjects.objects.all()
+    context = {
+        "subjects": subjects
+    }
+    return render(request, 'hod_template/manage_subject_template.html', context)
+
+
+def edit_subject(request, subject_id):
+    subject = Subjects.objects.get(id=subject_id)
+    courses = Courses.objects.all()
+    context = {
+        "subject": subject,
+        "courses": courses,
+        "id": subject_id
+    }
+    return render(request, 'hod_template/edit_subject_template.html', context)
+
+
+def edit_subject_save(request):
+    if request.method != "POST":
+        HttpResponse("Invalid Method.")
+    else:
+        subject_id = request.POST.get('subject_id')
+        subject_name = request.POST.get('subject')
+        course_id = request.POST.get('course')
+
+        try:
+            subject = Subjects.objects.get(id=subject_id)
+            subject.subject_name = subject_name
+
+            course = Courses.objects.get(id=course_id)
+            subject.course_id = course
+            
+            subject.save()
+
+            messages.success(request, "Subject Updated Successfully.")
+            # return redirect('/edit_subject/'+subject_id)
+            return HttpResponseRedirect(reverse("edit_subject", kwargs={"subject_id":subject_id}))
 
         except:
-            messages.error(request, "Failed to Update Course.")
-            return redirect('/edit_course/'+course_id)
+            messages.error(request, "Failed to Update Subject.")
+            return HttpResponseRedirect(reverse("edit_subject", kwargs={"subject_id":subject_id}))
+            # return redirect('/edit_subject/'+subject_id)
 
 
-def delete_course(request, course_id):
-    course = Courses.objects.get(id=course_id)
+
+def delete_subject(request, subject_id):
+    subject = Subjects.objects.get(id=subject_id)
     try:
-        course.delete()
-        messages.success(request, "Course Deleted Successfully.")
-        return redirect('manage_course')
+        subject.delete()
+        messages.success(request, "Subject Deleted Successfully.")
+        return redirect('manage_subject')
     except:
-        messages.error(request, "Failed to Delete Course.")
-        return redirect('manage_course')
-    
-def manage_student(request):
-    students=Students.objects.all()
-    return render(request, "hod_template/manage_student_template.html", {"students": students})
+        messages.error(request, "Failed to Delete Subject.")
+        return redirect('manage_subject')
 
-def manage_course(request):
-    courses=Courses.objects.all()
-    return render(request, "hod_template/manage_course_template.html", {"courses": courses})
 
+@csrf_exempt
+def student_feedback_message_reply(request):
+    feedback_id = request.POST.get('id')
+    feedback_reply = request.POST.get('reply')
+
+    try:
+        feedback = FeedBackStudent.objects.get(id=feedback_id)
+        feedback.feedback_reply = feedback_reply
+        feedback.save()
+        return HttpResponse("True")
+
+    except:
+        return HttpResponse("False")

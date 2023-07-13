@@ -21,11 +21,11 @@
                     <!-- /.card-header -->
                     <!-- form start -->
                     <!-- <form role="form" method="POST" action="{% url 'add_course_save' %}"> -->
-                    <form role="form" method="POST" action="/add_subject_save" method="post"> 
+                    <form role="form" method="POST" action="/add_subject_save/" method="post"> 
                         {% csrf_token %}
                         <div class="card-body">
                             <div class="form-group">
-                                <label>Course Name</label>
+                                <label>Subject Name</label>
                                 <input type="text" class="form-control" name="course" placeholder="Enter Course">
                             </div>
 
@@ -40,16 +40,7 @@
                                 </select>
                             </div>
 
-                            <div class="form-group">
-                                <label>Staffs</label>
-                                <select class="form-control" name="course">
-                                    {% for stafff in staffs %}
-                                        <option value="{{staff.id}}">
-                                            {{staff.first_name}} {{staff.last_name}}
-                                        </option>
-                                    {% endfor %}
-                                </select>
-                            </div>
+                        
                             <div class="form-group">
                                 {% if messages %}
                                     {% for message in messages %}
